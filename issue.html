@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Issue Generator - ERPNext Kaynes</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark: #0d1117;
+            --bg-card: #161b22;
+            --border: #30363d;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --accent: #58a6ff;
+            --accent-hover: #1f6feb;
+            --success: #3fb950;
+            --danger: #f85149;
+            --warning: #d29922;
+        }
+
+        body {
+            font-family: 'Space Grotesk', -apple-system, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, #1f6feb 0%, #58a6ff 100%);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(31, 111, 235, 0.2);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .card h2 {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px 15px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .type-selector {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .type-btn {
+            padding: 12px;
+            background: var(--bg-dark);
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .type-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .type-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .preview-area {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85em;
+            line-height: 1.8;
+            max-height: 600px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .preview-area::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .preview-area::-webkit-scrollbar-track {
+            background: var(--bg-card);
+        }
+
+        .preview-area::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 5px;
+        }
+
+        .preview-area::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Space Grotesk', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(88, 166, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .status-message {
+            padding: 12px 20px;
+            border-radius: 6px;
+            margin-top: 15px;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .status-message.success {
+            background: rgba(63, 185, 80, 0.1);
+            border: 1px solid var(--success);
+            color: var(--success);
+        }
+
+        .steps-input {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .step-item {
+            display: flex;
+            gap: 10px;
+            align-items: start;
+        }
+
+        .step-item input {
+            flex: 1;
+        }
+
+        .add-step {
+            background: transparent;
+            color: var(--accent);
+            border: 1px dashed var(--border);
+            padding: 8px;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .add-step:hover {
+            border-color: var(--accent);
+            background: rgba(88, 166, 255, 0.05);
+        }
+
+        @media (max-width: 968px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+        }
+
+        .emoji-icon {
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1> GitHub Issue Generator</h1>
+            <p>ERPNext Kaynes Custom App - Claude Ready Issues</p>
+        </div>
+
+        <div class="main-grid">
+            <!-- Input Form -->
+            <div class="card">
+                <h2><span class="emoji-icon">📝</span> Issue Details</h2>
+                
+                <div class="form-group">
+                    <label>Issue Type</label>
+                    <div class="type-selector">
+                        <div class="type-btn" onclick="selectType('Bug')">🐛 Bug</div>
+                        <div class="type-btn" onclick="selectType('Enhancement')">✨ Enhancement</div>
+                        <div class="type-btn" onclick="selectType('Feature')">🎯 Feature</div>
+                    </div>
+                    <input type="hidden" id="issueType" value="">
+                </div>
+
+                <div class="form-group">
+                    <label>Title (One Line)</label>
+                    <input type="text" id="title" placeholder="e.g., Stock Entry fails when using existing batch">
+                </div>
+
+                <div class="form-group">
+                    <label>Who is affected & How often</label>
+                    <input type="text" id="whoAffected" placeholder="e.g., Production team, 10-15 times daily">
+                </div>
+
+                <div class="form-group">
+                    <label>What should happen</label>
+                    <textarea id="expected" placeholder="Describe the expected behavior..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>What actually happens</label>
+                    <textarea id="actual" placeholder="Describe what's actually happening..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Setup needed (preconditions)</label>
+                    <textarea id="setup" placeholder="What needs to be set up before reproducing this..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Steps to reproduce</label>
+                    <div class="steps-input" id="stepsContainer">
+                        <div class="step-item">
+                            <input type="text" class="step-input" placeholder="Step 1...">
+                        </div>
+                        <div class="step-item">
+                            <input type="text" class="step-input" placeholder="Step 2...">
+                        </div>
+                        <div class="step-item">
+                            <input type="text" class="step-input" placeholder="Step 3...">
+                        </div>
+                    </div>
+                    <button class="add-step" onclick="addStep()">+ Add Step</button>
+                </div>
+
+                <div class="form-group">
+                    <label>Error message (if any)</label>
+                    <textarea id="error" placeholder="Paste error message here..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Related DocTypes/IDs</label>
+                    <input type="text" id="docs" placeholder="e.g., Work Order: WO-00234, Item: ITEM-CAP-100">
+                </div>
+
+                <div class="form-group">
+                    <label>What should NOT break (3 items)</label>
+                    <input type="text" id="mustNotBreak1" placeholder="1. Normal stock entries">
+                    <input type="text" id="mustNotBreak2" placeholder="2. Material transfers" style="margin-top: 8px;">
+                    <input type="text" id="mustNotBreak3" placeholder="3. Batch creation" style="margin-top: 8px;">
+                </div>
+            </div>
+
+            <!-- Preview -->
+            <div class="card">
+                <h2><span class="emoji-icon">👁️</span> Live Preview</h2>
+                <div class="preview-area" id="preview">Fill the form to see the GitHub issue markdown...</div>
+                
+                <div class="action-buttons">
+                    <button class="btn-primary" onclick="copyToClipboard()">
+                        <span>📋</span> Copy to Clipboard
+                    </button>
+                    <button class="btn-secondary" onclick="resetForm()">
+                        <span>🔄</span> Reset
+                    </button>
+                </div>
+                
+                <div class="status-message success" id="statusMessage">
+                    ✅ Copied to clipboard! Ready to paste in GitHub.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedType = '';
+
+        function selectType(type) {
+            selectedType = type;
+            document.getElementById('issueType').value = type;
+            
+            // Update button states
+            document.querySelectorAll('.type-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            updatePreview();
+        }
+
+        function addStep() {
+            const container = document.getElementById('stepsContainer');
+            const stepNum = container.children.length + 1;
+            const stepDiv = document.createElement('div');
+            stepDiv.className = 'step-item';
+            stepDiv.innerHTML = `<input type="text" class="step-input" placeholder="Step ${stepNum}...">`;
+            container.appendChild(stepDiv);
+            
+            // Add event listener to new input
+            stepDiv.querySelector('input').addEventListener('input', updatePreview);
+        }
+
+        function updatePreview() {
+            const type = selectedType || 'Bug';
+            const title = document.getElementById('title').value || '[Enter title]';
+            const whoAffected = document.getElementById('whoAffected').value || '[Enter who is affected]';
+            const expected = document.getElementById('expected').value || '[Enter expected behavior]';
+            const actual = document.getElementById('actual').value || '[Enter actual behavior]';
+            const setup = document.getElementById('setup').value || '[Enter setup requirements]';
+            const error = document.getElementById('error').value || 'N/A';
+            const docs = document.getElementById('docs').value || 'N/A';
+            const mustNotBreak1 = document.getElementById('mustNotBreak1').value || '[Item 1]';
+            const mustNotBreak2 = document.getElementById('mustNotBreak2').value || '[Item 2]';
+            const mustNotBreak3 = document.getElementById('mustNotBreak3').value || '[Item 3]';
+
+            // Collect steps
+            const stepInputs = document.querySelectorAll('.step-input');
+            let stepsText = '';
+            stepInputs.forEach((input, index) => {
+                if (input.value.trim()) {
+                    stepsText += `${index + 1}. ${input.value}\n`;
+                }
+            });
+            if (!stepsText) stepsText = '1. [Enter step 1]\n2. [Enter step 2]\n3. [Enter step 3]';
+
+            const markdown = `---
+name: ERPNext Custom App — Issue (Agent Ready)
+about: High-level issue template for @claude to reproduce, fix/build safely, and raise a PR to our main branch.
+title: "[${type}] ${title}"
+labels: ["needs-triage"]
+---
+
+# 1) Issue Summary
+
+**One-liner:** ${title}
+
+**Business impact:** ${whoAffected}
+
+---
+
+# 2) Scope & Safety (Must Not Break)
+
+**In scope:** ${type === 'Bug' ? 'Bug fix in affected module' : type === 'Enhancement' ? 'Enhancement to existing functionality' : 'New feature implementation'}
+
+**Out of scope:** Other unrelated modules and workflows
+
+**Must not break flows:**
+1. ${mustNotBreak1}
+2. ${mustNotBreak2}
+3. ${mustNotBreak3}
+
+---
+
+# 3) Expected vs Actual
+
+**Expected (functional contract):**
+- ${expected}
+
+**Actual:**
+- ${actual}
+
+---
+
+# 4) Reproduction (Deterministic)
+
+**Preconditions / Setup:** 
+${setup}
+
+**Steps:**
+${stepsText}
+
+**Observed result:** 
+${actual}
+
+**Expected result:** 
+${expected}
+
+---
+
+# 5) Evidence
+
+**Doc links/IDs:** ${docs}
+
+**Screenshots/recording:** 
+<!-- Attach screenshots here -->
+
+**Logs/traceback (redact secrets):**
+\`\`\`text
+${error}
+\`\`\`
+
+---
+
+# 6) Environment
+
+* **ERPNext:** v15.80.1 (version-15)
+* **Frappe:** v15.83.0 (version-15)
+* **Custom app:** kaynes
+* **Python version:** 3.10
+* **Database:** MariaDB
+
+---
+
+# 7) Acceptance Criteria
+
+* [ ] Repro now matches expected behavior
+* [ ] Tests added/updated (unit/integration where applicable)
+* [ ] Regression checked for "Must not break" flows
+* [ ] No new errors/tracebacks; permissions remain correct
+
+---
+
+# 8) Repo Branching & PR Policy (MANDATORY)
+
+**Our main branch:** \`feat/wo-fg-from-development\`
+
+**@claude must:**
+1. Create a new branch **from** \`feat/wo-fg-from-development\`
+2. Commit changes to the new branch only
+3. Raise PR **to** \`feat/wo-fg-from-development\` (base branch)
+4. **Never** open PRs to \`main\` / \`master\`
+
+**Branch name convention:** \`claude/issue-<issue_number>-<short-slug>\`
+
+**PR must include:** 
+- Summary of changes
+- Root cause analysis
+- Fix approach
+- Tests run + results
+- Regression notes
+
+---
+
+## 🚀 Ready to start?
+
+Tag **@claude** in the comments below after creating this issue!`;
+
+            document.getElementById('preview').textContent = markdown;
+        }
+
+        function copyToClipboard() {
+            const previewText = document.getElementById('preview').textContent;
+            navigator.clipboard.writeText(previewText).then(() => {
+                const statusMessage = document.getElementById('statusMessage');
+                statusMessage.style.display = 'block';
+                setTimeout(() => {
+                    statusMessage.style.display = 'none';
+                }, 3000);
+            });
+        }
+
+        function resetForm() {
+            document.querySelectorAll('input[type="text"], textarea').forEach(input => {
+                input.value = '';
+            });
+            document.querySelectorAll('.type-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            selectedType = '';
+            
+            // Reset steps to default 3
+            const container = document.getElementById('stepsContainer');
+            container.innerHTML = `
+                <div class="step-item">
+                    <input type="text" class="step-input" placeholder="Step 1...">
+                </div>
+                <div class="step-item">
+                    <input type="text" class="step-input" placeholder="Step 2...">
+                </div>
+                <div class="step-item">
+                    <input type="text" class="step-input" placeholder="Step 3...">
+                </div>
+            `;
+            
+            // Re-attach event listeners
+            attachEventListeners();
+            updatePreview();
+        }
+
+        function attachEventListeners() {
+            document.querySelectorAll('input, textarea').forEach(input => {
+                input.addEventListener('input', updatePreview);
+            });
+        }
+
+        // Initialize
+        attachEventListeners();
+        updatePreview();
+    </script>
+</body>
+</html>
